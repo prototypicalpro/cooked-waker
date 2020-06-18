@@ -125,6 +125,7 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 use alloc::rc;
+#[cfg(feature = "has_atomics")]
 use alloc::sync as arc;
 use core::task::{RawWaker, RawWakerVTable, Waker};
 
@@ -193,7 +194,7 @@ pub trait IntoWaker: Wake + Clone + Send + Sync + 'static {
     fn into_waker(self) -> Waker;
 }
 
-impl<T: Wake + Clone + Send + Sync + 'static> IntoWaker for T {
+impl<T: Wake + Clone + Send + Sync + 'static + stowaway::Stowable> IntoWaker for T {
     const VTABLE: &'static RawWakerVTable = &RawWakerVTable::new(
         // clone
         |raw| {
@@ -256,6 +257,7 @@ impl<T: Wake> Wake for Box<T> {
     }
 }
 
+#[cfg(feature = "has_atomics")]
 impl<T: WakeRef + ?Sized> WakeRef for arc::Arc<T> {
     #[inline]
     fn wake_by_ref(&self) {
@@ -263,8 +265,10 @@ impl<T: WakeRef + ?Sized> WakeRef for arc::Arc<T> {
     }
 }
 
+#[cfg(feature = "has_atomics")]
 impl<T: WakeRef + ?Sized> Wake for arc::Arc<T> {}
 
+#[cfg(feature = "has_atomics")]
 impl<T: WakeRef + ?Sized> WakeRef for arc::Weak<T> {
     #[inline]
     fn wake_by_ref(&self) {
@@ -272,6 +276,7 @@ impl<T: WakeRef + ?Sized> WakeRef for arc::Weak<T> {
     }
 }
 
+#[cfg(feature = "has_atomics")]
 impl<T: WakeRef + ?Sized> Wake for arc::Weak<T> {}
 
 impl<T: WakeRef + ?Sized> WakeRef for rc::Rc<T> {

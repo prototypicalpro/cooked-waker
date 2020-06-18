@@ -13,3 +13,8 @@ repository = "https://github.com/Lucretiel/cooked-waker"
 
 [dependencies.stowaway]
 version = "2"
+default-features = false
+
+[features]
+default = ["has_atomics", "stowaway/has_atomics"]
+has_atomics = []
